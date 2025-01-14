@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'voters',
     'candidate',
     'votes',
+    'user',
+
 ]
 
 MIDDLEWARE = [
@@ -131,7 +133,12 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    ],
+
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 
@@ -140,3 +147,4 @@ MEDIA_URL = '/media/'
 
 # Path where media is stored'
 MEDIA_ROOT = BASE_DIR / 'media'
+AUTH_USER_MODEL = 'user.User'

@@ -22,5 +22,7 @@ urlpatterns = [
     path('voters/', include('voters.urls')),  # Include voters app URLs
     path('candidate/', include('candidate.urls')),  # Include candidate app URLs
      path('votes/', include('votes.urls')),  # Include candidate app URLs
+          path('user/', include('user.urls')),  # Include candidate app URLs
+
 ]
 
