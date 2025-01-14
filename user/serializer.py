@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User
+from rest_framework import serializers
+from .models import User
+from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class LoginSerializer(serializers.Serializer):
     phone = serializers.CharField()
@@ -23,17 +27,40 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
+
+
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['phone', 'password', 'name']
+        fields = [
+            'full_name', 'date_of_birth', 'address', 'email', 
+            'password', 'confirm_password', 'citizenship_no', 
+            'phone', 'image'
+        ]
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate(self, attrs):
+        # Validate password and confirm password match
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+
+        # Check if the email already exists in the database
+        if User.objects.filter(email=attrs.get('email')).exists():
+            raise serializers.ValidationError("Email is already in use.")
+
+        return attrs
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            phone=validated_data['phone'],
-            password=validated_data['password'],
-            name=validated_data.get('name', '')
-        )
-        return user
+        validated_data.pop('confirm_password')  # Remove confirm_password
+        validated_data['password'] = make_password(validated_data['password'])  # Hash password
+        return super().create(validated_data)
+
+    def get_tokens(self, user):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }

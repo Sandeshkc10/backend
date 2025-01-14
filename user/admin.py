@@ -4,12 +4,12 @@ from .models import User
 
 class UserAdmin(BaseUserAdmin):
     ordering = ['id']
-    list_display = ['id', 'phone', 'name', 'is_staff', 'is_active']
+    list_display = ['id', 'phone', 'full_name', 'is_staff', 'is_active']
     fieldsets = (
         (None, {'fields': ('phone', 'password')}),
-        ('Personal Info', {'fields': ('name',)}),
+        ('Personal Info', {'fields': ('full_name', 'email', 'address', 'date_of_birth', 'citizenship_no', 'image')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login',)}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
         (None, {
@@ -17,6 +17,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('phone', 'password1', 'password2'),
         }),
     )
-    search_fields = ['phone']
+    search_fields = ['phone', 'full_name', 'email']
+    readonly_fields = ['last_login', 'date_joined']
 
 admin.site.register(User, UserAdmin)
